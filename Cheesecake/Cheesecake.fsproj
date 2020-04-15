@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Library.fs" />
+    <Compile Include="Scrabble.fsi" />
+    <Compile Include="Scrabble.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ScrabbleServer">
+      <HintPath>..\animated-bagel\dll\ScrabbleServer.dll</HintPath>
+    </Reference>
+    <Reference Include="ScrabbleUtil">
+      <HintPath>..\animated-bagel\dll\ScrabbleUtil.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

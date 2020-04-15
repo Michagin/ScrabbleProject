@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Cheesecake\Cheesecake.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Oxyphenbutazone">
+      <HintPath>dll\Oxyphenbutazone.dll</HintPath>
+    </Reference>
+    <Reference Include="ScrabbleServer">
+      <HintPath>dll\ScrabbleServer.dll</HintPath>
+    </Reference>
+    <Reference Include="ScrabbleUtil">
+      <HintPath>dll\ScrabbleUtil.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

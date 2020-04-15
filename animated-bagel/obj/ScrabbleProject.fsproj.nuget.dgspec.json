@@ -1,0 +1,130 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\Michagin\\code\\ScrabbleProjet\\animated-bagel\\ScrabbleProject.fsproj": {}
+  },
+  "projects": {
+    "C:\\Users\\Michagin\\code\\ScrabbleProjet\\animated-bagel\\ScrabbleProject.fsproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Michagin\\code\\ScrabbleProjet\\animated-bagel\\ScrabbleProject.fsproj",
+        "projectName": "ScrabbleProject",
+        "projectPath": "C:\\Users\\Michagin\\code\\ScrabbleProjet\\animated-bagel\\ScrabbleProject.fsproj",
+        "packagesPath": "C:\\Users\\Michagin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Michagin\\code\\ScrabbleProjet\\animated-bagel\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Michagin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp2.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp2.1": {
+            "projectReferences": {
+              "C:\\Users\\Michagin\\code\\ScrabbleProjet\\Cheesecake\\Cheesecake.fsproj": {
+                "projectPath": "C:\\Users\\Michagin\\code\\ScrabbleProjet\\Cheesecake\\Cheesecake.fsproj"
+              }
+            }
+          }
+        }
+      },
+      "frameworks": {
+        "netcoreapp2.1": {
+          "dependencies": {
+            "FSharp.Core": {
+              "target": "Package",
+              "version": "[4.7.0, )",
+              "generatePathProperty": true
+            },
+            "Microsoft.NETCore.App": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.1.0, )",
+              "autoReferenced": true,
+              "generatePathProperty": true
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.201\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\Michagin\\code\\ScrabbleProjet\\Cheesecake\\Cheesecake.fsproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Michagin\\code\\ScrabbleProjet\\Cheesecake\\Cheesecake.fsproj",
+        "projectName": "Cheesecake",
+        "projectPath": "C:\\Users\\Michagin\\code\\ScrabbleProjet\\Cheesecake\\Cheesecake.fsproj",
+        "packagesPath": "C:\\Users\\Michagin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Michagin\\code\\ScrabbleProjet\\Cheesecake\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Michagin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp2.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp2.1": {
+            "projectReferences": {}
+          }
+        }
+      },
+      "frameworks": {
+        "netcoreapp2.1": {
+          "dependencies": {
+            "FSharp.Core": {
+              "target": "Package",
+              "version": "[4.7.0, )",
+              "generatePathProperty": true
+            },
+            "Microsoft.NETCore.App": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.1.0, )",
+              "autoReferenced": true,
+              "generatePathProperty": true
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.201\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
