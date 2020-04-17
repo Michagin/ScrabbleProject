@@ -1,5 +1,5 @@
 ﻿
-namespace ScrabbleTemplate
+namespace Cheesecake
 
 module Scrabble =
 

@@ -1,4 +1,4 @@
-namespace ScrabbleTemplate
+namespace Cheesecake
 
 open ScrabbleLib
 
@@ -9,6 +9,7 @@ open ScrabbleUtil.ServerCommunication
 open System.Net.Sockets
 open System.IO
 open DebugPrint
+open Dictionary
 
 module RegEx =
     open System.Text.RegularExpressions
@@ -57,7 +58,7 @@ module State =
 module Scrabble =
     open System.Threading
 
-    let playGame cstream pieces (st : State.state) =
+    let playGame cstream (dict:Dictionary) pieces (st : State.state) =
 
         let rec aux (st : State.state) =
             Thread.Sleep(5000) // only here to not confuse the pretty-printer. Remove later.
@@ -118,6 +119,8 @@ module Scrabble =
                       timeout = %A\n\n" numPlayers playerNumber playerTurn hand timeout)
                   
         let handSet = List.fold (fun acc (x, k) -> MultiSet.add x k acc) MultiSet.empty hand
-
-        fun () -> playGame cstream tiles (State.newState playerNumber handSet )
+        let dict = 
+            let origin = Dictionary.empty alphabet
+            Seq.foldBack Dictionary.insert words origin
+        fun () -> playGame cstream dict tiles (State.newState playerNumber handSet )
         

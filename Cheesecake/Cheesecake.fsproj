@@ -9,6 +9,8 @@
     <Compile Include="MultiSet.fs" />
     <Compile Include="Dictionary.fsi" />
     <Compile Include="Dictionary.fs" />
+    <Compile Include="Blueberry.fsi" />
+    <Compile Include="Blueberry.fs" />
     <Compile Include="Scrabble.fsi" />
     <Compile Include="Scrabble.fs" />
   </ItemGroup>
