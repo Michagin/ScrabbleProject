@@ -2,9 +2,13 @@
       type Dictionary =
       | Node of Map<char,(Dictionary * bool)>
       | Leaf 
-
       
       let empty (s:string) = Node( Map.empty |> Map.toSeq |> Seq.append (seq {for c in s.ToCharArray() do yield (c,(Leaf,false))}) |> Map.ofSeq)
+
+      let alphabet (dict:Dictionary) = 
+       match dict with 
+       | Node m -> m |> Map.toSeq |> Seq.map fst |> Seq.toList // requires "Dictionary.empty alphabet" is done in startGame
+       | Leaf -> failwith "Requires alphabet has been loaded into dictionary"
 
       let rec insert (s:string) (dict:Dictionary) = 
        match dict with
