@@ -15,14 +15,15 @@
        | dict when s.Length = 0 -> dict
        | Leaf when s.Length = 1 -> Node (Map.empty.Add((s.[0]), (Leaf, true)))
        | Leaf -> Node (Map.empty.Add(((s.[0]), ((insert (s.Substring(1)) Leaf), false))))
+       | Node m when s.Length = 1 && m.ContainsKey(s.[0]) -> 
+                                                                let (d, _) = m.Item(s.[0])
+                                                                Node(m.Add((s.[0]), (d, true)))
        | Node m when s.Length = 1 -> Node(m.Add(s.[0], (Leaf,true)))
        | Node m when m.ContainsKey(s.[0]) -> 
                                                           let (d, b) = m.Item(s.[0])
-                                                          Node(m.Add((s.ToCharArray().[0]), (insert (s.Substring(1)) d, b)))
-                                                          
-       | Node m -> Node(m.Add((s.[0]), ((insert (s.Substring(1)) (Node((m.Add((s.[0]), (Leaf, false)))))), false)))
-                   
-
+                                                          Node(m.Add((s.[0]), (insert (s.Substring(1)) d, b)))                                          
+       | Node m -> Node(m.Add(((s.[0]), ((insert (s.Substring(1)) Leaf), false))))
+                 
       let rec lookup (s:string) (dict:Dictionary) =
        match dict with
        | Leaf -> false

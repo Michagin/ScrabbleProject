@@ -1,6 +1,6 @@
 ﻿module Blueberry
-open MultiSet
 open ScrabbleUtil
+open MultiSet
 open Dictionary
         
 type word = (char * int) list
@@ -91,6 +91,14 @@ let addPointsToList hand list =
                aux (remove i hand) xs (cp :: acc)
  aux hand list []
 
+// Map.toList pieces
+let rec addId pieces (cp: char * int) =
+ match pieces with
+ | [] -> (0u,cp)
+ | (id,tile)::xs -> 
+                    let (c,p) = tileToTuple tile
+                    if cp = (c,p) then (id,cp) else addId xs cp
+
 let decideWord (dict:Dictionary) (hand:(char * int) list) = 
  let rec theWord dict hand length = 
   match length with
@@ -100,6 +108,13 @@ let decideWord (dict:Dictionary) (hand:(char * int) list) =
           if (res = "") then theWord dict hand (length-1) else res
  Seq.toList (theWord dict hand 7) |> addPointsToList hand 
 
-let test = [('A',2);('O',2);('V',2);('C',2);('D',2);('.',0);('.',0)]
+let rec addCoordsH (coord: coord) (list:(uint32 * (char * int)) list) =
+ let rec aux (coord: coord) (list:(uint32 * (char * int)) list) acc =
+   match list,coord with 
+    | [],(_,_) -> List.rev acc
+    | i::xs,(x,y) -> aux (x+1,y) xs ((coord,i)::acc)
+ aux coord list []
 
+let test = [('A',2);('O',2);('T',1);('C',2);('D',2);('.',0);('.',0)]
+let testWild = [('O',2);('D',2);('V',2);('.',2);('.',2);('.',0);('.',0)]
 let test2 = ['A';'V';'O';'C';'A';'D';'O']
