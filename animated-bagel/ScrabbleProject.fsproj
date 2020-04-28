@@ -10,6 +10,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FParsec" Version="1.1.1" />
+    <PackageReference Include="FSharp.Quotations.Evaluator" Version="2.1.0" />
+    <PackageReference Include="FsPickler" Version="5.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Cheesecake\Cheesecake.fsproj" />
   </ItemGroup>
 
@@ -23,6 +29,10 @@
     <Reference Include="ScrabbleUtil">
       <HintPath>dll\ScrabbleUtil.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.7.1" />
   </ItemGroup>
 
 </Project>
