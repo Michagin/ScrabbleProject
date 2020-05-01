@@ -7,6 +7,7 @@ open ScrabbleUtil.ServerCommunication
 open System.Net.Sockets
 open System.IO
 open DebugPrint
+open Eval
 open Dictionary
 open Blueberry
 open MultiSet
@@ -37,6 +38,15 @@ module RegEx =
         hand |>
         fold (fun _ x i -> forcePrint (sprintf "%d -> (%A, %d)\n" x (Map.find x pieces) i)) ()
 
+module BoardState =
+
+    type boardState = {
+        boardFun      : coord -> Map<int, squareFun> option
+        origin        : coord
+        usedSquare    : Map<int, squareFun> // maybe ignore?
+        placedTiles   : Map<int * int, tile>
+    }
+
 module State = 
     // Make sure to keep your state localised in this module. It makes your life a whole lot easier.
     // Currently, it only keeps track of your hand, and your player numer but it could, potentially, 
@@ -46,6 +56,7 @@ module State =
     type state = {
         playerNumber  : uint32
         hand          : MultiSet<uint32>
+      //  boardState    : BoardState.boardState
         playMade      : bool
     }
 
@@ -146,7 +157,5 @@ module Scrabble =
         
         let handSet = List.fold (fun acc (x, k) -> MultiSet.add x k acc) MultiSet.empty hand
         let dict = List.fold (fun acc s -> Dictionary.insert s acc) (Dictionary.empty alphabet) words
-        System.Console.WriteLine(sprintf "%b" (List.contains "AARDVARK" words))
-        System.Console.WriteLine(sprintf "%b" (lookup "OVSTOIA" dict))
         fun () -> playGame cstream dict tiles boardP (State.newState playerNumber handSet )
         
