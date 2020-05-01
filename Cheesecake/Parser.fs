@@ -3,8 +3,6 @@
 open System
 open FParsec
 open ScrabbleUtil
-//open TextParser
-//open Parser
 
 type aExp =
     | N of int              (* Integer literal *)
@@ -74,6 +72,7 @@ module ImpParser =
     let (.>*>.) p1 p2 = p1 .>> spaces .>>. p2
     let (.>*>) p1 p2 = p1 .>> spaces .>> p2
     let (>*>.) p1 p2 = p1 .>> spaces >>. p2
+
     let whitespaceChar = satisfy Char.IsWhiteSpace
     let pAnyChar = anyChar
     let letterChar = asciiLetter
@@ -110,8 +109,9 @@ module ImpParser =
     let bracketsise p =
         delimitise '{' '}' p
 
+    
     let pid =
-        (letterChar .>>. many alphaNumeric) |>> fun (x,y) -> (x::y) |> List.toArray |> (fun s -> System.String s)
+        ((pchar '_') <|> letterChar .>>. many (alphaNumeric <|> pchar '_')) |>> fun (x,y) -> (x::y) |> List.toArray |> (fun s -> System.String s)
 
     let binop op = fun a b -> a .>*> op .>*>. b 
 
@@ -218,3 +218,6 @@ module ImpParser =
         match runParserOnString parser () "" text with
         | Success (stm, _, _) -> stm
         | Failure (err, _, _) -> failwith err 
+
+
+    //let test = (runTextParser pid "_result_")
