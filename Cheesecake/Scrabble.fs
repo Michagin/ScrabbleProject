@@ -77,7 +77,7 @@ module Scrabble =
              if word = [] 
              then 
               debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) (SMChange (MultiSet.toList st.hand)))
-              send cstream (SMChange (MultiSet.toList st.hand))
+              send cstream (SMChange (MultiSet.toList st.hand)) // Changes the entire hand.
              else 
               let play = List.map (fun x -> addId (Map.toList pieces) x) word
               debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) (SMPlay (addCoordsH (boardP.center) play)))
@@ -96,14 +96,19 @@ module Scrabble =
                 aux st'
             | RCM (CMPlaySuccess(ms, points, newPieces)) ->
                 (* Successful play by you. Update your state (remove old tiles, add the new ones, change turn, etc) *)
-                let st' = {st with playMade = true} // This state needs to be updated
+                let rec moveToPieces tiles acc = match tiles with
+                                                    | [] -> acc 
+                                                    | (c,(id,(char,p)))::xs -> moveToPieces xs (MultiSet.addSingle id acc)
+                let rec newHand tiles acc = match tiles with
+                                            | [] -> acc
+                                            | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
+                let st' = {st with playMade = true; hand = newHand newPieces (subtract st.hand (moveToPieces ms MultiSet.empty)) |> toList |> ofList} // This state needs to be updated
                 aux st'
             | RCM (CMChangeSuccess (newTiles)) ->
                 let rec newHand tiles acc = match tiles with
                                             | [] -> acc
                                             | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
-                // Should be updated so it does not automatically change the entire hand.
-                let st' = {st with hand = newHand newTiles MultiSet.empty}
+                let st' = {st with hand = newHand newTiles st.hand}
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->
                 (* Successful play by other player. Update your state *)
