@@ -58,7 +58,7 @@ module BoardState =
 
     let squareProgToFun (bProg:boardProg) = Map.map (fun x y -> Map.map (fun x2 y2 -> (Parser.ImpParser.runTextParser Parser.ImpParser.stmParse y2) |> stmntToSquareFun ) y) bProg.squares
 
-    let mkBoardState (bProg:boardProg) = 1
+    let mkBoardState (bProg:boardProg) = { boardFun = stmntToBoardFun (progToStm bProg) (squareProgToFun bProg); origin = bProg.center; usedSquare = Map.empty; placedTiles = Map.empty}
 
     let insert boardSt coord tile = 1
 
