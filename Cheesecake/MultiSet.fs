@@ -24,7 +24,7 @@
     let map f (MS s) =  (MS s) |> toList |> List.map f |> ofList
     let union (MS s1) (MS s2) = MS (Map.ofSeq( (Map.toSeq s2 |> Seq.append (seq {for KeyValue (k,v) in s1 do if (s2.ContainsKey(k) && s2.Item(k) > s1.Item(k)) || (s2.ContainsKey(k) = false) then yield (k,v)}))))
     let sum (MS s1) (MS s2) = (MS s1) |> toList |> List.append (toList (MS s2)) |> ofList
-    let subtract (MS s1) (MS s2) = MS (Map.ofSeq( (Seq.append (Map.toSeq s1) (seq {for KeyValue (k,v) in s2 do if (s1.ContainsKey(k)) && (s1.Item(k) >= s2.Item(k)) then yield (k,(s1.Item(k)-v)) else yield (k,0u)}))))
+    let subtract (MS s1) (MS s2) = MS (Map.ofSeq( (Seq.append (Map.toSeq s1) (seq {for KeyValue (k,v) in s2 do if (s1.ContainsKey(k)) && (s1.Item(k) >= s2.Item(k)) then yield (k,(s1.Item(k)-v)) else yield (k,0u)}))))                               
     let intersection (MS s1) (MS s2) = MS (Map.ofSeq( seq {for KeyValue (k,v) in s2 do if (s1.ContainsKey(k)) then yield (k,v)}))
 
     // We are aware union and subtract are not the prettiest one-liners, and that

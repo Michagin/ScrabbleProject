@@ -1,7 +1,5 @@
 namespace Cheesecake
 
-open ScrabbleLib
-
 open ScrabbleServer
 open ScrabbleUtil
 open ScrabbleUtil.ServerCommunication
@@ -9,7 +7,10 @@ open ScrabbleUtil.ServerCommunication
 open System.Net.Sockets
 open System.IO
 open DebugPrint
+open Eval
 open Dictionary
+open Blueberry
+open MultiSet
 
 module RegEx =
     open System.Text.RegularExpressions
@@ -35,7 +36,16 @@ module RegEx =
 
     let printHand pieces hand =
         hand |>
-        MultiSet.fold (fun _ x i -> forcePrint (sprintf "%d -> (%A, %d)\n" x (Map.find x pieces) i)) ()
+        fold (fun _ x i -> forcePrint (sprintf "%d -> (%A, %d)\n" x (Map.find x pieces) i)) ()
+
+module BoardState =
+
+    type boardState = {
+        boardFun      : coord -> Map<int, squareFun> option
+        origin        : coord
+        usedSquare    : Map<int, squareFun> // maybe ignore?
+        placedTiles   : Map<int * int, tile>
+    }
 
 module State = 
     // Make sure to keep your state localised in this module. It makes your life a whole lot easier.
@@ -45,32 +55,47 @@ module State =
 
     type state = {
         playerNumber  : uint32
-        hand          : MultiSet.MultiSet<uint32>
+        hand          : MultiSet<uint32>
+      //  boardState    : BoardState.boardState
+        playMade      : bool
     }
 
-    let mkState pn h = { playerNumber = pn; hand = h }
+    let mkState pn h = { playerNumber = pn; hand = h; playMade = false; }
 
     let newState pn hand = mkState pn hand
     
     let playerNumber st  = st.playerNumber
     let hand st          = st.hand
+    let playMade st      = st.playMade
 
 module Scrabble =
     open System.Threading
 
-    let playGame cstream (dict:Dictionary) pieces (st : State.state) =
+    let playGame cstream (dict:Dictionary) pieces (boardP : boardProg) (st : State.state) =
 
         let rec aux (st : State.state) =
             Thread.Sleep(5000) // only here to not confuse the pretty-printer. Remove later.
             Print.printHand pieces (State.hand st)
-
+            
             // remove the force print when you move on from manual input (or when you have learnt the format)
             //let input =  System.Console.ReadLine()
             //let move = RegEx.parseMove input
-
-            debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) (SMPass)) // keep the debug lines. They are useful.
-            send cstream (SMPass)
-
+            if st.playMade = true then
+             debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) (SMPass)) // keep the debug lines. They are useful.
+             send cstream (SMPass)
+            else 
+             let word = checkHand (st.hand) pieces |> decideWord dict
+             if word = [] 
+             then 
+              debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) (SMChange (MultiSet.toList st.hand)))
+              send cstream (SMChange (MultiSet.toList st.hand)) // Changes the entire hand.
+             else 
+              let play = List.map (fun x -> addId (Map.toList pieces) x) word
+              debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) (SMPlay (addCoordsH (boardP.center) play)))
+              send cstream (SMPlay (addCoordsH (boardP.center) play))
+                                 
+              
+              
             let msg = recv cstream
             debugPrint (sprintf "Player %d <- Server:\n%A\n" (State.playerNumber st) msg) // keep the debug lines. They are useful.
 
@@ -82,11 +107,23 @@ module Scrabble =
                 aux st'
             | RCM (CMPlaySuccess(ms, points, newPieces)) ->
                 (* Successful play by you. Update your state (remove old tiles, add the new ones, change turn, etc) *)
-                let st' = st // This state needs to be updated
+                let rec moveToPieces tiles acc = match tiles with
+                                                    | [] -> acc 
+                                                    | (c,(id,(char,p)))::xs -> moveToPieces xs (MultiSet.addSingle id acc)
+                let rec newHand tiles acc = match tiles with
+                                            | [] -> acc
+                                            | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
+                let st' = {st with playMade = true; hand = newHand newPieces (subtract st.hand (moveToPieces ms MultiSet.empty)) |> toList |> ofList} // This state needs to be updated
+                aux st'
+            | RCM (CMChangeSuccess (newTiles)) ->
+                let rec newHand tiles acc = match tiles with
+                                            | [] -> acc
+                                            | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
+                let st' = {st with hand = newHand newTiles st.hand}
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->
                 (* Successful play by other player. Update your state *)
-                let st' = st // This state needs to be updated
+                let st' = {st with playMade = true} // This state needs to be updated
                 aux st'
             | RCM (CMPlayFailed (pid, ms)) ->
                 (* Failed play. Update your state *)
@@ -117,10 +154,8 @@ module Scrabble =
                       player turn = %d
                       hand =  %A
                       timeout = %A\n\n" numPlayers playerNumber playerTurn hand timeout)
-                  
+        
         let handSet = List.fold (fun acc (x, k) -> MultiSet.add x k acc) MultiSet.empty hand
-        let dict = 
-            let origin = Dictionary.empty alphabet
-            Seq.foldBack Dictionary.insert words origin
-        fun () -> playGame cstream dict tiles (State.newState playerNumber handSet )
+        let dict = List.fold (fun acc s -> Dictionary.insert s acc) (Dictionary.empty alphabet) words
+        fun () -> playGame cstream dict tiles boardP (State.newState playerNumber handSet )
         
