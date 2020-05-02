@@ -73,11 +73,11 @@ module State =
     type state = {
         playerNumber  : uint32
         hand          : MultiSet<uint32>
-      //  boardState    : BoardState.boardState
+        boardState    : BoardState.boardState
         playMade      : bool
     }
 
-    let mkState pn h = { playerNumber = pn; hand = h; playMade = false; }
+    let mkState pn h bs = { playerNumber = pn; hand = h; playMade = false; boardState = bs; }
 
     let newState pn hand = mkState pn hand
     
@@ -88,11 +88,11 @@ module State =
 module Scrabble =
     open System.Threading
 
-    let playGame cstream (dict:Dictionary) pieces (boardP : boardProg) (st : State.state) =
+    let playGame cstream (dict:Dictionary) pieces (st : State.state) =
 
         let rec aux (st : State.state) =
-            Thread.Sleep(5000) // only here to not confuse the pretty-printer. Remove later.
-            Print.printHand pieces (State.hand st)
+           // Thread.Sleep(5000) // only here to not confuse the pretty-printer. Remove later.
+          //  Print.printHand pieces (State.hand st)
             
             // remove the force print when you move on from manual input (or when you have learnt the format)
             //let input =  System.Console.ReadLine()
@@ -108,8 +108,8 @@ module Scrabble =
               send cstream (SMChange (MultiSet.toList st.hand)) // Changes the entire hand.
              else 
               let play = List.map (fun x -> addId (Map.toList pieces) x) word
-              debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) (SMPlay (addCoordsH (boardP.center) play)))
-              send cstream (SMPlay (addCoordsH (boardP.center) play))
+              debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) (SMPlay (addCoordsH (st.boardState.origin) play)))
+              send cstream (SMPlay (addCoordsH (st.boardState.origin) play))
                                  
               
               
@@ -172,7 +172,8 @@ module Scrabble =
                       hand =  %A
                       timeout = %A\n\n" numPlayers playerNumber playerTurn hand timeout)
         
+        let boardSt = BoardState.mkBoardState boardP
         let handSet = List.fold (fun acc (x, k) -> MultiSet.add x k acc) MultiSet.empty hand
         let dict = List.fold (fun acc s -> Dictionary.insert s acc) (Dictionary.empty alphabet) words
-        fun () -> playGame cstream dict tiles boardP (State.newState playerNumber handSet )
+        fun () -> playGame cstream dict tiles (State.newState playerNumber handSet boardSt)
         
