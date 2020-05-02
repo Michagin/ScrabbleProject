@@ -60,9 +60,9 @@ module BoardState =
 
     let mkBoardState (bProg:boardProg) = { boardFun = stmntToBoardFun (progToStm bProg) (squareProgToFun bProg); origin = bProg.center; usedSquare = Map.empty; placedTiles = Map.empty}
 
-    let insert boardSt coord tile = 1
+    let insert boardSt coord tile = failwith "Not implemented"
 
-    let query boardSt coord = 1
+    let query boardSt coord = failwith "Not implemented"
 
 module State = 
     // Make sure to keep your state localised in this module. It makes your life a whole lot easier.

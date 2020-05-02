@@ -191,7 +191,7 @@
     type boardFun = coord -> Map<int, squareFun> option
 
     let stmntToBoardFun stm (m:Map<int,Map<int, squareFun>>) : boardFun = fun (x, y) -> stmntEval stm >>>= lookup "_result_" >>= fun id -> ret (Some (m.Item(id)))
-                                                                                     |> evalSM (mkState [("_x_",x); ("_y_",y)] [] ["_x_"; "_y_"; "_result_"]) 
+                                                                                     |> evalSM (mkState [("_x_",x); ("_y_",y); ("_result_",0)] [] ["_x_"; "_y_"; "_result_"]) 
                                                                                      |> function
                                                                                         | Success x -> x
                                                                                         | Failure err -> failwith (sprintf "Error: %A" err)
