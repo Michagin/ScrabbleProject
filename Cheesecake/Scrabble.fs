@@ -136,7 +136,7 @@ module Scrabble =
                 let rec newHand tiles acc = match tiles with
                                             | [] -> acc
                                             | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
-                let st' = {st with hand = newHand newTiles st.hand}
+                let st' = {st with hand = newHand newTiles MultiSet.empty} // only works when we change entire hand
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->
                 (* Successful play by other player. Update your state *)
