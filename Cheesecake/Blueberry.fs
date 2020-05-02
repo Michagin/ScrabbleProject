@@ -69,8 +69,8 @@ let findValidWord (dict:Dictionary) (list: string list) =
  aux list dict  
  
  // from Stack Overflow https://stackoverflow.com/questions/2889961/f-insert-remove-item-from-list
-let rec remove i l =
-     match i, l with
+let rec remove i list =
+     match i, list with
      | 0, x::xs -> xs
      | i, x::xs -> x::remove (i - 1) xs
      | i, [] -> failwith "index out of range"

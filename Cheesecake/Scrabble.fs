@@ -8,6 +8,8 @@ open System.Net.Sockets
 open System.IO
 open DebugPrint
 open Eval
+open FParsec
+open Parser
 open Dictionary
 open Blueberry
 open MultiSet
@@ -41,11 +43,26 @@ module RegEx =
 module BoardState =
 
     type boardState = {
-        boardFun      : coord -> Map<int, squareFun> option
-        origin        : coord
+        boardFun      : boardFun // coord -> Map<int, squareFun> option
+        origin        : coord               // center
         usedSquare    : Map<int, squareFun> // maybe ignore?
         placedTiles   : Map<int * int, tile>
     }
+
+    type SquarePosition = 
+        | UsedSquare of uint32 * char *int
+        | UnusedSquare of Map<int, squareFun>
+        | Hole
+
+    let progToStm (bProg:boardProg) = Parser.ImpParser.runTextParser Parser.ImpParser.stmParse bProg.prog // stm
+
+    let squareProgToFun (bProg:boardProg) = Map.map (fun x y -> Map.map (fun x2 y2 -> (Parser.ImpParser.runTextParser Parser.ImpParser.stmParse y2) |> stmntToSquareFun ) y) bProg.squares
+
+    let mkBoardState (bProg:boardProg) = 1
+
+    let insert boardSt coord tile = 1
+
+    let query boardSt coord = 1
 
 module State = 
     // Make sure to keep your state localised in this module. It makes your life a whole lot easier.
