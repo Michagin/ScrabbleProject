@@ -54,7 +54,7 @@ module BoardState =
         | UnusedSquare of Map<int, squareFun>
         | Hole
 
-    let progToStm (bProg:boardProg) = Parser.ImpParser.runTextParser Parser.ImpParser.stmParse bProg.prog // stm
+    let progToStm (bProg:boardProg) = Parser.ImpParser.runTextParser Parser.ImpParser.stmParse bProg.prog 
 
     let squareProgToFun (bProg:boardProg) = Map.map (fun x y -> Map.map (fun x2 y2 -> (Parser.ImpParser.runTextParser Parser.ImpParser.stmParse y2) |> stmntToSquareFun ) y) bProg.squares
 
@@ -78,16 +78,15 @@ module State =
         playerNumber  : uint32
         hand          : MultiSet<uint32>
         boardState    : BoardState.boardState
-        playMade      : bool
     }
 
-    let mkState pn h bs = { playerNumber = pn; hand = h; playMade = false; boardState = bs; }
+    let mkState pn h bs = { playerNumber = pn; hand = h; boardState = bs; }
 
     let newState pn hand = mkState pn hand
     
     let playerNumber st  = st.playerNumber
     let hand st          = st.hand
-    let playMade st      = st.playMade
+    let boardState st    = st.boardState
 
 module Scrabble =
     open System.Threading
@@ -101,7 +100,7 @@ module Scrabble =
             // remove the force print when you move on from manual input (or when you have learnt the format)
             //let input =  System.Console.ReadLine()
             //let move = RegEx.parseMove input
-            if st.playMade = true then
+            if not st.boardState.placedTiles.IsEmpty then
              debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) (SMPass)) // keep the debug lines. They are useful.
              send cstream (SMPass)
             else 
@@ -135,7 +134,7 @@ module Scrabble =
                 let rec newHand tiles acc = match tiles with
                                             | [] -> acc
                                             | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
-                let st' = {st with playMade = true; hand = newHand newPieces (subtract st.hand (moveToPieces ms MultiSet.empty)) |> toList |> ofList; boardState = updateBoardState st.boardState ms }  // This state needs to be updated
+                let st' = {st with hand = newHand newPieces (subtract st.hand (moveToPieces ms MultiSet.empty)) |> toList |> ofList; boardState = updateBoardState st.boardState ms }  // This state needs to be updated
                 aux st'
             | RCM (CMChangeSuccess (newTiles)) ->
                 let rec newHand tiles acc = match tiles with
@@ -145,7 +144,7 @@ module Scrabble =
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->
                 (* Successful play by other player. Update your state *)
-                let st' = {st with playMade = true} // This state needs to be updated
+                let st' = st // This state needs to be updated
                 aux st'
             | RCM (CMPlayFailed (pid, ms)) ->
                 (* Failed play. Update your state *)
