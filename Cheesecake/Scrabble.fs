@@ -46,7 +46,7 @@ module BoardState =
         boardFun      : boardFun // coord -> Map<int, squareFun> option
         origin        : coord               // center
         usedSquare    : Map<int, squareFun> // maybe ignore?
-        placedTiles   : Map<int * int, tile>
+        placedTiles   : Map<int * int, uint32 * (char * int)>
     }
 
     type SquarePosition = 
@@ -60,9 +60,13 @@ module BoardState =
 
     let mkBoardState (bProg:boardProg) = { boardFun = stmntToBoardFun (progToStm bProg) (squareProgToFun bProg); origin = bProg.center; usedSquare = Map.empty; placedTiles = Map.empty}
 
-    let insert boardSt coord tile = failwith "Not implemented"
+    let insert (boardSt:boardState) (coord:coord) tile = { boardSt with placedTiles = boardSt.placedTiles.Add (coord,tile) }
 
-    let query boardSt coord = failwith "Not implemented"
+    let query (boardSt:boardState) coord = match boardSt.placedTiles.TryFind coord with
+                                            | Some(id, (character, point)) -> UsedSquare (id, character, point)
+                                            | None                         -> match boardSt.boardFun coord with
+                                                                                | Some a -> UnusedSquare a
+                                                                                | None -> Hole
 
 module State = 
     // Make sure to keep your state localised in this module. It makes your life a whole lot easier.
@@ -124,13 +128,14 @@ module Scrabble =
                 aux st'
             | RCM (CMPlaySuccess(ms, points, newPieces)) ->
                 (* Successful play by you. Update your state (remove old tiles, add the new ones, change turn, etc) *)
+                let updateBoardState (bs:BoardState.boardState) (list:(coord * (uint32 * (char * int))) list) = List.fold (fun acc (coord, (uint, (char, int))) -> BoardState.insert acc coord (uint, (char,int))) bs list 
                 let rec moveToPieces tiles acc = match tiles with
                                                     | [] -> acc 
                                                     | (c,(id,(char,p)))::xs -> moveToPieces xs (MultiSet.addSingle id acc)
                 let rec newHand tiles acc = match tiles with
                                             | [] -> acc
                                             | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
-                let st' = {st with playMade = true; hand = newHand newPieces (subtract st.hand (moveToPieces ms MultiSet.empty)) |> toList |> ofList} // This state needs to be updated
+                let st' = {st with playMade = true; hand = newHand newPieces (subtract st.hand (moveToPieces ms MultiSet.empty)) |> toList |> ofList; boardState = updateBoardState st.boardState ms }  // This state needs to be updated
                 aux st'
             | RCM (CMChangeSuccess (newTiles)) ->
                 let rec newHand tiles acc = match tiles with
