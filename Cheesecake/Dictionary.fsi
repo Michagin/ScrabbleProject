@@ -1,7 +1,7 @@
 ﻿module Dictionary
        type Dictionary 
-       val empty    : string -> Dictionary
-       val alphabet : Dictionary -> char list
-       val insert   : string -> Dictionary -> Dictionary
-       val lookup   : string -> Dictionary -> bool
+       val internal empty    : string -> Dictionary
+       val internal alphabet : Dictionary -> char list
+       val internal insert   : string -> Dictionary -> Dictionary
+       val internal lookup   : string -> Dictionary -> bool
 

@@ -40,14 +40,14 @@ module RegEx =
 module BoardState =
  open Parser.ImpParser
 
-    type boardState = {
+    type internal boardState = {
         boardFun      : boardFun // coord -> Map<int, squareFun> option
         origin        : coord               // center
         usedSquare    : Map<int, squareFun> // maybe ignore?
         placedTiles   : Map<int * int, uint32 * (char * int)>
     }
 
-    type SquarePosition = 
+    type internal SquarePosition = 
         | UsedSquare of uint32 * char *int
         | UnusedSquare of Map<int, squareFun>
         | Hole
@@ -74,7 +74,7 @@ module State =
     // keep track of other useful
     // information, such as number of players, player turn, etc.
 
-    type state = {
+    type internal state = {
         playerNumber  : uint32
         hand          : MultiSet<uint32>
         boardState    : BoardState.boardState

@@ -1,35 +1,35 @@
 ﻿module StateMonad
 
-    type SM<'a>
-    type State
+    type internal SM<'a>
+    type internal State
 
-    type Result<'a, 'b>  =
+    type internal Result<'a, 'b>  =
         | Success of 'a
         | Failure of 'b
 
-    type Error = 
+    type internal Error = 
         | VarExists of string
         | VarNotFound of string
         | IndexOutOfBounds of int
         | DivisionByZero 
         | ReservedName of string
 
-    val mkState : (string * int) list -> (char * int) list -> string list -> State
+    val internal mkState : (string * int) list -> (char * int) list -> string list -> State
 
-    val ret    : 'a -> SM<'a>
-    val fail   : Error -> SM<'a>
-    val (>>=)  : SM<'a> -> ('a -> SM<'b>) -> SM<'b>
-    val (>>>=) : SM<unit> -> SM<'a> -> SM<'a>
+    val internal ret    : 'a -> SM<'a>
+    val internal fail   : Error -> SM<'a>
+    val internal (>>=)  : SM<'a> -> ('a -> SM<'b>) -> SM<'b>
+    val internal (>>>=) : SM<unit> -> SM<'a> -> SM<'a>
 
-    val evalSM : State -> SM<'a>  -> Result<'a, Error>
+    val internal evalSM : State -> SM<'a>  -> Result<'a, Error>
 
-    val push : SM<unit>
-    val pop  : SM<unit>
+    val internal push : SM<unit>
+    val internal pop  : SM<unit>
 
-    val lookup  : string -> SM<int>
-    val update  : string -> int -> SM<unit>
-    val declare : string -> SM<unit>
+    val internal lookup  : string -> SM<int>
+    val internal update  : string -> int -> SM<unit>
+    val internal declare : string -> SM<unit>
 
-    val wordLength     : SM<int>
-    val characterValue : int -> SM<char>
-    val pointValue     : int -> SM<int>
+    val internal wordLength     : SM<int>
+    val internal characterValue : int -> SM<char>
+    val internal pointValue     : int -> SM<int>

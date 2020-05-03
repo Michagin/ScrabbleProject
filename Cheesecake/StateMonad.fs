@@ -1,21 +1,21 @@
 ﻿module StateMonad
 
-    type Error = 
+    type internal Error = 
         | VarExists of string
         | VarNotFound of string
         | IndexOutOfBounds of int
         | DivisionByZero 
         | ReservedName of string           
 
-    type Result<'a, 'b>  =
+    type internal Result<'a, 'b>  =
         | Success of 'a
         | Failure of 'b
 
-    type State = { vars     : Map<string, int> list
-                   word     : (char * int) list 
-                   reserved : Set<string> }
+    type internal State = { vars     : Map<string, int> list
+                            word     : (char * int) list 
+                            reserved : Set<string> }
 
-    type SM<'a> = S of (State -> Result<'a * State, Error>)
+    type internal SM<'a> = S of (State -> Result<'a * State, Error>)
 
     let removeFirst lst =
      match lst with
@@ -40,12 +40,12 @@
      | x::xs when x = var -> value :: xs
      | _::xs -> replaceFirst xs var value
 
-    let mkState lst word reserved = 
+    let internal mkState lst word reserved = 
            { vars = [Map.ofList lst];
              word = word;
              reserved = Set.ofList reserved }
 
-    let evalSM (s : State) (S a : SM<'a>) : Result<'a, Error> =
+    let internal evalSM (s : State) (S a : SM<'a>) : Result<'a, Error> =
         match a s with
         | Success (result, _) -> Success result
         | Failure error -> Failure error
@@ -59,22 +59,22 @@
               | Failure err     -> Failure err)
 
 
-    let ret (v : 'a) : SM<'a> = S (fun s -> Success (v, s))
-    let fail err     : SM<'a> = S (fun s -> Failure err)
+    let internal ret (v : 'a) : SM<'a> = S (fun s -> Success (v, s))
+    let internal fail err     : SM<'a> = S (fun s -> Failure err)
 
-    let (>>=)  x f = bind f x
-    let (>>>=) x f = x >>= (fun () -> f)
+    let internal (>>=)  x f = bind f x
+    let internal (>>>=) x f = x >>= (fun () -> f)
 
-    let push : SM<unit> = 
+    let internal push : SM<unit> = 
         S (fun s -> Success ((), {s with vars = Map.empty :: s.vars}))
 
-    let pop : SM<unit> = 
+    let internal pop : SM<unit> = 
         S (fun s -> Success ((), {s with vars = removeFirst s.vars}))
 
-    let wordLength : SM<int> = 
+    let internal wordLength : SM<int> = 
          S (fun s -> Success (s.word.Length, s))
 
-    let characterValue (pos : int) : SM<char> = 
+    let internal characterValue (pos : int) : SM<char> = 
         S (fun s -> 
           if s.word.Length > pos then
            let char,_ = s.word.Item(pos)
@@ -82,7 +82,7 @@
           else
            Failure(IndexOutOfBounds pos))
 
-    let pointValue (pos : int) : SM<int> = 
+    let internal pointValue (pos : int) : SM<int> = 
         S (fun s -> 
                  if s.word.Length > pos && pos > -1 then
                   let _,p = s.word.Item(pos)
@@ -90,7 +90,7 @@
                  else
                   Failure(IndexOutOfBounds pos))
 
-    let lookup (x : string) : SM<int> = 
+    let internal lookup (x : string) : SM<int> = 
         let rec aux =
             function
             | []      -> None
@@ -104,14 +104,14 @@
               | Some v -> Success (v, s)
               | None   -> Failure (VarNotFound x))
 
-    let declare (var : string) : SM<unit> =
+    let internal declare (var : string) : SM<unit> =
         S (fun s -> 
                 if s.reserved.Contains(var) then Failure (ReservedName var)
                 else match s.vars with
                      | x::_ when x.ContainsKey(var) -> Failure (VarExists var)
                      | _ -> Success ((), {s with vars = Map.ofList [(var,0)] :: s.vars}))
 
-    let update (var : string) (value : int) : SM<unit> = 
+    let internal update (var : string) (value : int) : SM<unit> = 
             let rec aux i =
                 function
                 | []      -> -1
