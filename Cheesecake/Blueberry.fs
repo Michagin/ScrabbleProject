@@ -9,6 +9,7 @@ let tileToTuple (t:tile) =
   match Set.toList t with
   | [c,p] -> (c,p)
   | (c,p)::xs -> ('.',p) // Wild tile
+  | [] -> failwith "Blank tile given"
   
 let checkHand (hand:MultiSet<uint32>) (pieces:Map<uint32,tile>) = MultiSet.toList hand |> List.map (fun x -> Map.find x pieces |> tileToTuple)
 
@@ -114,6 +115,17 @@ let rec addCoordsH (coord: coord) (list:(uint32 * (char * int)) list) =
     | [],(_,_) -> List.rev acc
     | i::xs,(x,y) -> aux (x+1,y) xs ((coord,i)::acc)
  aux coord list []
+
+ (* Below is code used for Scrabble state logic *)
+ 
+let rec moveToPieces (tiles:(coord * (uint32 * (char * int))) list) acc = 
+                                                                        match tiles with
+                                                                         | [] -> acc 
+                                                                         | (c,(id,(char,p)))::xs -> moveToPieces xs (MultiSet.addSingle id acc)
+
+let rec newHand (tiles:(uint32 * uint32) list) acc = match tiles with
+                                                        | [] -> acc
+                                                        | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
 
 let test = [('A',2);('O',2);('T',1);('C',2);('D',2);('.',0);('.',0)]
 let testWild = [('O',2);('D',2);('V',2);('.',2);('.',2);('.',0);('.',0)]

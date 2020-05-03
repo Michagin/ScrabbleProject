@@ -66,6 +66,8 @@ module BoardState =
                                                                                 | Some a -> UnusedSquare a
                                                                                 | None -> Hole
 
+    let updateBoardState (bs:boardState) (list:(coord * (uint32 * (char * int))) list) = List.fold (fun acc (coord, (uint, (char, int))) -> insert acc coord (uint, (char,int))) bs list 
+
 module State = 
     // Make sure to keep your state localised in this module. It makes your life a whole lot easier.
     // Currently, it only keeps track of your hand, and your player numer but it could, potentially, 
@@ -122,14 +124,7 @@ module Scrabble =
                 aux st'
             | RCM (CMPlaySuccess(ms, points, newPieces)) ->
                 (* Successful play by you. Update your state (remove old tiles, add the new ones, change turn, etc) *)
-                let updateBoardState (bs:BoardState.boardState) (list:(coord * (uint32 * (char * int))) list) = List.fold (fun acc (coord, (uint, (char, int))) -> BoardState.insert acc coord (uint, (char,int))) bs list 
-                let rec moveToPieces tiles acc = match tiles with
-                                                    | [] -> acc 
-                                                    | (c,(id,(char,p)))::xs -> moveToPieces xs (MultiSet.addSingle id acc)
-                let rec newHand tiles acc = match tiles with
-                                            | [] -> acc
-                                            | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
-                let st' = {st with hand = newHand newPieces (subtract st.hand (moveToPieces ms MultiSet.empty)) |> toList |> ofList; boardState = updateBoardState st.boardState ms }  // This state needs to be updated
+                let st' = {st with hand = newHand newPieces (subtract st.hand (moveToPieces ms MultiSet.empty)) |> toList |> ofList; boardState = BoardState.updateBoardState st.boardState ms}  
                 aux st'
             | RCM (CMChangeSuccess (newTiles)) ->
                 let rec newHand tiles acc = match tiles with
@@ -139,7 +134,7 @@ module Scrabble =
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->
                 (* Successful play by other player. Update your state *)
-                let st' = st // This state needs to be updated
+                let st' = {st with boardState = BoardState.updateBoardState st.boardState ms}
                 aux st'
             | RCM (CMPlayFailed (pid, ms)) ->
                 (* Failed play. Update your state *)
