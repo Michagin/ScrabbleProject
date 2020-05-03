@@ -46,7 +46,7 @@ module BoardState =
         boardFun      : boardFun // coord -> Map<int, squareFun> option
         origin        : coord               // center
         usedSquare    : Map<int, squareFun> // maybe ignore?
-        placedTiles   : Map<int * int, tile>
+        placedTiles   : Map<int * int, uint32 * (char * int)>
     }
 
     type SquarePosition = 
@@ -54,15 +54,19 @@ module BoardState =
         | UnusedSquare of Map<int, squareFun>
         | Hole
 
-    let progToStm (bProg:boardProg) = Parser.ImpParser.runTextParser Parser.ImpParser.stmParse bProg.prog // stm
+    let progToStm (bProg:boardProg) = Parser.ImpParser.runTextParser Parser.ImpParser.stmParse bProg.prog 
 
     let squareProgToFun (bProg:boardProg) = Map.map (fun x y -> Map.map (fun x2 y2 -> (Parser.ImpParser.runTextParser Parser.ImpParser.stmParse y2) |> stmntToSquareFun ) y) bProg.squares
 
     let mkBoardState (bProg:boardProg) = { boardFun = stmntToBoardFun (progToStm bProg) (squareProgToFun bProg); origin = bProg.center; usedSquare = Map.empty; placedTiles = Map.empty}
 
-    let insert boardSt coord tile = failwith "Not implemented"
+    let insert (boardSt:boardState) coord tile = {boardSt with placedTiles = boardSt.placedTiles.Add (coord tile)}
 
-    let query boardSt coord = failwith "Not implemented"
+    let query (boardSt:boardState) coord = match boardSt.placedTiles.TryFind coord with
+                                            | Some(id,(c,p)) -> UsedSquare (id,c,p)
+                                            | None -> match boardSt.boardFun coord with
+                                                       | Some a -> UnusedSquare a
+                                                       | None -> Hole
 
 module State = 
     // Make sure to keep your state localised in this module. It makes your life a whole lot easier.
@@ -124,6 +128,7 @@ module Scrabble =
                 aux st'
             | RCM (CMPlaySuccess(ms, points, newPieces)) ->
                 (* Successful play by you. Update your state (remove old tiles, add the new ones, change turn, etc) *)
+
                 let rec moveToPieces tiles acc = match tiles with
                                                     | [] -> acc 
                                                     | (c,(id,(char,p)))::xs -> moveToPieces xs (MultiSet.addSingle id acc)
