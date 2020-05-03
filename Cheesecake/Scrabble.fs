@@ -86,6 +86,8 @@ module State =
     let hand st          = st.hand
     let boardState st    = st.boardState
 
+    let updateBoardState (bs:BoardState.boardState) (list:(coord * (uint32 * (char * int))) list) = List.fold (fun acc (coord, (uint, (char, int))) -> BoardState.insert acc coord (uint, (char,int))) bs list
+
 module Scrabble =
     open System.Threading
 
@@ -122,19 +124,9 @@ module Scrabble =
                 aux st'
             | RCM (CMPlaySuccess(ms, points, newPieces)) ->
                 (* Successful play by you. Update your state (remove old tiles, add the new ones, change turn, etc) *)
-                let updateBoardState (bs:BoardState.boardState) (list:(coord * (uint32 * (char * int))) list) = List.fold (fun acc (coord, (uint, (char, int))) -> BoardState.insert acc coord (uint, (char,int))) bs list 
-                let rec moveToPieces tiles acc = match tiles with
-                                                    | [] -> acc 
-                                                    | (c,(id,(char,p)))::xs -> moveToPieces xs (MultiSet.addSingle id acc)
-                let rec newHand tiles acc = match tiles with
-                                            | [] -> acc
-                                            | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
-                let st' = {st with hand = newHand newPieces (subtract st.hand (moveToPieces ms MultiSet.empty)) |> toList |> ofList; boardState = updateBoardState st.boardState ms }  // This state needs to be updated
+                let st' = {st with hand = newHand newPieces (subtract st.hand (moveToPieces ms MultiSet.empty)) |> toList |> ofList; boardState = State.updateBoardState st.boardState ms }  // This state needs to be updated
                 aux st'
             | RCM (CMChangeSuccess (newTiles)) ->
-                let rec newHand tiles acc = match tiles with
-                                            | [] -> acc
-                                            | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
                 let st' = {st with hand = newHand newTiles MultiSet.empty} // only works when we change entire hand
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->

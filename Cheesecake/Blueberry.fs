@@ -115,6 +115,16 @@ let rec addCoordsH (coord: coord) (list:(uint32 * (char * int)) list) =
     | i::xs,(x,y) -> aux (x+1,y) xs ((coord,i)::acc)
  aux coord list []
 
+
+(* Below is code used for Scrabble state logic *)
+
+let rec moveToPieces tiles acc = match tiles with
+                                    | [] -> acc 
+                                    | (c,(id,(char,p)))::xs -> moveToPieces xs (MultiSet.addSingle id acc)
+let rec newHand tiles acc = match tiles with
+                            | [] -> acc
+                            | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
+
 let test = [('A',2);('O',2);('T',1);('C',2);('D',2);('.',0);('.',0)]
 let testWild = [('O',2);('D',2);('V',2);('.',2);('.',2);('.',0);('.',0)]
 let test2 = ['A';'V';'O';'C';'A';'D';'O']
