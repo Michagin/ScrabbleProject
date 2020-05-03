@@ -3,13 +3,10 @@ namespace Cheesecake
 open ScrabbleServer
 open ScrabbleUtil
 open ScrabbleUtil.ServerCommunication
-
 open System.Net.Sockets
 open System.IO
 open DebugPrint
 open Eval
-open FParsec
-open Parser
 open Dictionary
 open Blueberry
 open MultiSet
@@ -41,6 +38,7 @@ module RegEx =
         fold (fun _ x i -> forcePrint (sprintf "%d -> (%A, %d)\n" x (Map.find x pieces) i)) ()
 
 module BoardState =
+ open Parser.ImpParser
 
     type boardState = {
         boardFun      : boardFun // coord -> Map<int, squareFun> option
@@ -54,9 +52,9 @@ module BoardState =
         | UnusedSquare of Map<int, squareFun>
         | Hole
 
-    let progToStm (bProg:boardProg) = Parser.ImpParser.runTextParser Parser.ImpParser.stmParse bProg.prog 
+    let progToStm (bProg:boardProg) = runTextParser stmParse bProg.prog 
 
-    let squareProgToFun (bProg:boardProg) = Map.map (fun x y -> Map.map (fun x2 y2 -> (Parser.ImpParser.runTextParser Parser.ImpParser.stmParse y2) |> stmntToSquareFun ) y) bProg.squares
+    let squareProgToFun (bProg:boardProg) = Map.map (fun x y -> Map.map (fun x2 y2 -> (runTextParser stmParse y2) |> stmntToSquareFun ) y) bProg.squares
 
     let mkBoardState (bProg:boardProg) = { boardFun = stmntToBoardFun (progToStm bProg) (squareProgToFun bProg); origin = bProg.center; usedSquare = Map.empty; placedTiles = Map.empty}
 
