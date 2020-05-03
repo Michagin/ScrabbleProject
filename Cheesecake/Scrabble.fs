@@ -95,11 +95,8 @@ module Scrabble =
            // Thread.Sleep(5000) // only here to not confuse the pretty-printer. Remove later.
           //  Print.printHand pieces (State.hand st)
             
-            // remove the force print when you move on from manual input (or when you have learnt the format)
-            //let input =  System.Console.ReadLine()
-            //let move = RegEx.parseMove input
             if not st.boardState.placedTiles.IsEmpty then
-             debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) (SMPass)) // keep the debug lines. They are useful.
+             debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) (SMPass)) 
              send cstream (SMPass)
             else 
              let word = checkHand (st.hand) pieces |> decideWord dict
@@ -115,7 +112,7 @@ module Scrabble =
               
               
             let msg = recv cstream
-            debugPrint (sprintf "Player %d <- Server:\n%A\n" (State.playerNumber st) msg) // keep the debug lines. They are useful.
+            debugPrint (sprintf "Player %d <- Server:\n%A\n" (State.playerNumber st) msg) 
 
             match msg with
             | RCM (CMPassed i) -> 
