@@ -11,7 +11,7 @@ let tileToTuple (t:tile) =
   | (c,p)::xs -> ('.',p) // Wild tile
   | [] -> failwith "Blank tile given"
   
-let checkHand (hand:MultiSet<uint32>) (pieces:Map<uint32,tile>) = MultiSet.toList hand |> List.map (fun x -> Map.find x pieces |> tileToTuple)
+let internal checkHand (hand:MultiSet<uint32>) (pieces:Map<uint32,tile>) = MultiSet.toList hand |> List.map (fun x -> Map.find x pieces |> tileToTuple)
 
 let rec onlyLetters list =
   match list with
@@ -93,14 +93,14 @@ let addPointsToList hand list =
  aux hand list []
 
 // Map.toList pieces
-let rec addId pieces (cp: char * int) =
+let rec internal addId pieces (cp: char * int) =
  match pieces with
  | [] -> (0u,cp)
  | (id,tile)::xs -> 
                     let (c,p) = tileToTuple tile
                     if cp = (c,p) then (id,cp) else addId xs cp
 
-let decideWord (dict:Dictionary) (hand:(char * int) list) = 
+let internal decideWord (dict:Dictionary) (hand:(char * int) list) = 
  let rec theWord dict hand length = 
   match length with
    | 0 -> ""                             
@@ -109,7 +109,7 @@ let decideWord (dict:Dictionary) (hand:(char * int) list) =
           if (res = "") then theWord dict hand (length-1) else res
  Seq.toList (theWord dict hand 7) |> addPointsToList hand 
 
-let rec addCoordsH (coord: coord) (list:(uint32 * (char * int)) list) =
+let rec internal addCoordsH (coord: coord) (list:(uint32 * (char * int)) list) =
  let rec aux (coord: coord) (list:(uint32 * (char * int)) list) acc =
    match list,coord with 
     | [],(_,_) -> List.rev acc
@@ -118,12 +118,12 @@ let rec addCoordsH (coord: coord) (list:(uint32 * (char * int)) list) =
 
  (* Below is code used for Scrabble state logic *)
  
-let rec moveToPieces (tiles:(coord * (uint32 * (char * int))) list) acc = 
+let rec internal moveToPieces (tiles:(coord * (uint32 * (char * int))) list) acc = 
                                                                         match tiles with
                                                                          | [] -> acc 
                                                                          | (c,(id,(char,p)))::xs -> moveToPieces xs (MultiSet.addSingle id acc)
 
-let rec newHand (tiles:(uint32 * uint32) list) acc = match tiles with
+let rec internal newHand (tiles:(uint32 * uint32) list) acc = match tiles with
                                                         | [] -> acc
                                                         | (id,n)::xs -> newHand xs (MultiSet.add id n acc)
 
